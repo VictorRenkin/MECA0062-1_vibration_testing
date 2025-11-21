@@ -13,7 +13,7 @@ def get_polymax(H, freq,order_model,delta_t) :
             for m in range(order_model + 1) :
                 weigt_fct = 1
                 X_l[n][m] = weigt_fct * (np.exp(1j * 2 * np.pi * freq[n] * m * delta_t))
-            Y_l.append(np.Mron( - X_l[n], H_line_freq))
+            Y_l.append(np.kron( - X_l[n], H_line_freq))
         Y_l  = np.array(Y_l)
         Xl_H = np.conjugate(X_l).T
         Yl_H = np.conjugate(Y_l).T
