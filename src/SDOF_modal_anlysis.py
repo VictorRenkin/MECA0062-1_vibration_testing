@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 import skg.nsphere as nsphere
 import pandas as pd
+plt.rc('font', family='serif') 
+plt.rc('text', usetex=True)  
+plt.rcParams.update({
+    'font.size': 17,       # Taille de police générale
+    'legend.fontsize': 19, # Taille de police pour les légendes
+    'axes.labelsize': 20,  # Taille de police pour les étiquettes des axes
+})
 
 def compute_cmif(data) : 
     freq = data["H1_2"][:, 0]
@@ -33,9 +40,9 @@ def compute_peak_picking_method(H, freq, plot=True, set_name="") :
     
     # Trouver les fréquences aux points de demi-puissance autour du pic
     idx_Walpha = np.where(amplitude[:main_peak_index] <= half_power_point)[0][-1] if np.any(amplitude[:main_peak_index] < half_power_point) else main_peak_index
-    idx_Wbeta = np.where(amplitude[main_peak_index:] <= half_power_point)[0][0] + main_peak_index if np.any(amplitude[main_peak_index:] < half_power_point) else main_peak_index
-    f_Walpha = freq[idx_Walpha]
-    f_Wbeta = freq[idx_Wbeta]
+    idx_Wbeta  = np.where(amplitude[main_peak_index:] <= half_power_point)[0][0] + main_peak_index if np.any(amplitude[main_peak_index:] < half_power_point) else main_peak_index
+    f_Walpha   = freq[idx_Walpha]
+    f_Wbeta    = freq[idx_Wbeta]
     damping = (f_Wbeta - f_Walpha) / (2 * main_peak_freq)
     if plot :
         save_dir = f"../figures/first_lab/{set_name}"
@@ -45,8 +52,8 @@ def compute_peak_picking_method(H, freq, plot=True, set_name="") :
         plt.vlines([f_Walpha, f_Wbeta], ymin=0, ymax=amplitude[idx_Walpha], color="gray", linestyle="--", linewidth=1)
         
         # Annoter les fréquences omega_a, omega_b et la distance delta omega
-        plt.text(f_Walpha - 0.05, half_power_point -1, r'$\omega_a$', ha='center', va='top', fontsize=14)
-        plt.text(f_Wbeta + 0.05, half_power_point - 1, r'$\omega_b$', ha='center', va='top', fontsize=14)
+        plt.text(f_Walpha - 0.03, half_power_point -1, r'$\omega_a$', ha='center', va='top', fontsize=21)
+        plt.text(f_Wbeta + 0.03, half_power_point - 1, r'$\omega_b$', ha='center', va='top', fontsize=21)
         plt.annotate(
         '', 
         xy=(f_Wbeta, half_power_point-1.08), 
@@ -63,17 +70,17 @@ def compute_peak_picking_method(H, freq, plot=True, set_name="") :
         plt.hlines(main_peak_amplitude, freq[0], freq[-1], color="black", linestyle=":", linewidth=1.5)
         plt.hlines(half_power_point, freq[0], freq[-1], color="black", linestyle=":", linewidth=1.5)
         
-        plt.text(main_peak_freq+ 0.05, main_peak_amplitude + 0.1, r'$H^{max}_{rs(k)}$', va='center', fontsize=14)
-        plt.text(f_Wbeta + 0.05, half_power_point + 0.25, r'$\frac{H^{max}_{rs(k)}}{\sqrt{2}}$', va='center', fontsize=19)
+        plt.text(main_peak_freq+ 0.05, main_peak_amplitude + 0.15, r'$H^{max}_{rs(k)}$', va='center', fontsize=18)
+        plt.text(f_Wbeta + 0.05, half_power_point + 0.25, r'$\frac{H^{max}_{rs(k)}}{\sqrt{2}}$', va='center', fontsize=21)
         
         plt.ylim(0, main_peak_amplitude + 1)
         plt.xlim(freq[0], freq[-1])
 
-        plt.xlabel("Frequency [Hz]", fontsize=15)
-        plt.ylabel("Amplitude [g/N]", fontsize=15)
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Amplitude [g/N]")
 
         # plt.grid(True, which="both", linestyle="--", linewidth=0.5, color="gray")
-        plt.savefig(save_path, format="pdf", dpi=300)
+        plt.savefig(save_path, format="pdf", dpi=300, bbox_inches='tight')
         # plt.show()
         plt.close()
     return damping

@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 from tqdm import tqdm 
 import argparse
+from joblib import Parallel, delayed
+
 
 number_data     = 1
 number_data_set = str(number_data).zfill(5)
@@ -18,6 +20,8 @@ name_data       = f"../data/first_lab/DPsv{number_data_set}.mat"
 name_set        = f"set_{number_data}"
 
 data      = pld.extract_data(name_data)
+H1_2 = data["H1_2"][:, 1]
+
 cmif      = sdf.compute_cmif(data)
 freq_cmif = np.real(data["H1_2"][:, 0])
 
@@ -59,19 +63,28 @@ delta_t = 1.9531 * 10**(-3)
 modal   = {}
 
 def stabilisation_diagram() :
-    print("Stabilisation diagram is running")
-    for i in tqdm(range(20,85), desc="Polymax poles", unit="Poles"):
-        w_i, damping_i, eigenval = pm.get_polymax(H, freq, i, delta_t)
 
-        idx            = (w_i/2/np.pi >= 13) & (w_i/2/np.pi <= 180)
-        _, idx_unique  = np.unique(w_i[idx], return_index=True)
-        modal[i]       = {
-            "wn"       : w_i[idx][idx_unique], 
-            "zeta"     : damping_i[idx][idx_unique], 
-            "stable"   : ["x" for _ in range(len(w_i[idx]))],
-            "eigenval" : eigenval[idx][idx_unique]
-            }
 
+    def compute_one_pole(i, H_gen, freq, delta_t):
+        w_i, damping_i, eigenval = pm.get_polymax(H_gen, freq, i, delta_t)
+
+        idx = (w_i/2/np.pi >= 0) & (w_i/2/np.pi <= 180)
+        _, idx_unique = np.unique(w_i[idx], return_index=True)
+
+        return i, {
+            "wn"      : w_i[idx][idx_unique],
+            "zeta"    : damping_i[idx][idx_unique],
+            "stable"  : ["x" for _ in range(len(idx_unique))],
+            "eigenval": eigenval[idx][idx_unique],
+        }
+    orders = list(range(20, 100))
+
+    results = Parallel(n_jobs=-1)(
+        delayed(compute_one_pole)(i, H, freq, delta_t)
+        for i in tqdm(orders, desc="Polymax poles", unit="Poles")
+    )
+
+    modal = {i: data for i, data in results}
     dic_order = pm.get_stabilisation(modal)
     vd.viz_stabilisation_diagram(dic_order, cmif, freq_cmif)
 
@@ -144,4 +157,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

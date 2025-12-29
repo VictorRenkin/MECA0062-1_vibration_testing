@@ -8,9 +8,11 @@ from scipy.stats import linregress
 plt.rc('font', family='serif') 
 plt.rc('text', usetex=True)  
 plt.rcParams.update({
-    'font.size': 14,       # Taille de police générale
-    'legend.fontsize': 15, # Taille de police pour les légendes
-    'axes.labelsize': 20,  # Taille de police pour les étiquettes des axes
+    'font.size': 20,        # Taille de police générale
+    'legend.fontsize': 15,  # Taille de police pour les légendes
+    'axes.labelsize': 24,   # Taille de police pour les étiquettes des axes
+    'xtick.labelsize': 25,  # Taille de police pour les ticks sur l'axe x
+    'ytick.labelsize': 25,  # Taille de police pour les ticks sur l'axe y
 })
 
 
@@ -214,17 +216,6 @@ def plot_structure(data_samcef):
     plt.show()
     plt.close()
 
-def viz_MAC(MAC_matrix) : 
-    plt.figure(figsize=(10, 8), dpi=300)
-    
-    cax = plt.imshow(MAC_matrix, cmap='Greys', interpolation='nearest', origin='lower')
-    plt.colorbar(cax)  
-
-    max_indices = np.argmax(MAC_matrix, axis=0)
-    plt.xticks(range(MAC_matrix.shape[1]), [str(i+1) for i in range(MAC_matrix.shape[1])])
-    plt.yticks(range(MAC_matrix.shape[0]), [str(i+1) for i in range(MAC_matrix.shape[0])])
-    plt.xlabel(r"Modes Testing [-]")
-    plt.ylabel(r"Modes Samcef [-]")
 
 def viz_MAC(MAC_matrix):
     plt.figure(figsize=(10, 8), dpi=300)
